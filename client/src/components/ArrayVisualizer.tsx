@@ -1,13 +1,15 @@
+
 'use client';
 
 import React from 'react';
 
 type ArrayVisualizerProps = {
-  locals: Record<string, any>;
+  locals: Record<string, any> | undefined;
 };
 
 const ArrayVisualizer: React.FC<ArrayVisualizerProps> = ({ locals }) => {
-  // Find first list in locals
+  if (!locals || typeof locals !== 'object') return null;
+
   const arrayEntry = Object.entries(locals).find(
     ([_, value]) => Array.isArray(value)
   );
@@ -15,8 +17,6 @@ const ArrayVisualizer: React.FC<ArrayVisualizerProps> = ({ locals }) => {
   if (!arrayEntry) return null;
 
   const [arrayName, array] = arrayEntry;
-
-  // Try to find pointer variable (like 'i', 'j', etc.)
   const pointerIndex = typeof locals.i === 'number' ? locals.i : null;
 
   return (
@@ -44,4 +44,5 @@ const ArrayVisualizer: React.FC<ArrayVisualizerProps> = ({ locals }) => {
 };
 
 export default ArrayVisualizer;
+
 
