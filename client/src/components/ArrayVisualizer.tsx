@@ -1,48 +1,36 @@
-
 'use client';
 
-import React from 'react';
-
-type ArrayVisualizerProps = {
-  locals: Record<string, any> | undefined;
+type Props = {
+  locals: Record<string, any>;
 };
 
-const ArrayVisualizer: React.FC<ArrayVisualizerProps> = ({ locals }) => {
-  if (!locals || typeof locals !== 'object') return null;
-
-  const arrayEntry = Object.entries(locals).find(
-    ([_, value]) => Array.isArray(value)
-  );
-
+export default function ArrayVisualizer({ locals }: Props) {
+  const arrayEntry = Object.entries(locals).find(([_, val]) => Array.isArray(val));
   if (!arrayEntry) return null;
 
-  const [arrayName, array] = arrayEntry;
+  const [name, arr] = arrayEntry;
   const pointerIndex = typeof locals.i === 'number' ? locals.i : null;
 
   return (
-    <div className="mt-4">
-      <h2 className="text-lg font-bold text-white mb-2">📦 {arrayName} (Array)</h2>
-      <div className="flex space-x-2">
-        {array.map((val: any, idx: number) => (
+    <div className="mt-6">
+      <h3 className="text-white font-bold mb-2">📦 {name} (Array)</h3>
+      <div className="flex gap-2">
+        {arr.map((v: any, idx: number) => (
           <div
             key={idx}
-            className={`w-12 h-12 border rounded flex items-center justify-center text-white text-lg ${
-              pointerIndex === idx
-                ? 'bg-yellow-400 text-black font-bold'
-                : 'bg-gray-800'
+            className={`w-10 h-10 flex items-center justify-center border rounded text-white ${
+              pointerIndex === idx ? 'bg-yellow-400 text-black font-bold' : 'bg-gray-700'
             }`}
           >
-            {val}
+            {v}
           </div>
         ))}
       </div>
       {pointerIndex !== null && (
-        <p className="text-sm text-gray-300 mt-1 ml-2">👆 i = {pointerIndex}</p>
+        <p className="text-sm text-gray-400 mt-1">👆 i = {pointerIndex}</p>
       )}
     </div>
   );
-};
-
-export default ArrayVisualizer;
+}
 
 

@@ -1,3 +1,4 @@
+
 import sys
 import json
 
@@ -21,4 +22,5 @@ def trace_code(code: str):
         sys.settrace(None)
 
     return trace
+
 
