@@ -5,6 +5,7 @@ import CodeMirror from '@uiw/react-codemirror';
 import { python } from '@codemirror/lang-python';
 import { EditorView } from '@codemirror/view';
 import ArrayVisualizer from '@/components/ArrayVisualizer';
+import { log } from 'console';
 
 export default function Home() {
   const [code, setCode] = useState(`arr = [1, 2, 3]\nsum = 0\nfor i in range(len(arr)):\n    sum += arr[i]\nprint(sum)`);
@@ -19,6 +20,8 @@ export default function Home() {
         body: JSON.stringify({ code, language: 'python' }),
       });
       const data = await res.json();
+      console.log(data.trace);
+      
       setTrace(data.trace || []);
       setStepIndex(0);
     } catch (err) {
@@ -55,7 +58,18 @@ export default function Home() {
           <div className="mt-6 bg-black p-4 rounded">
             <h2 className="font-semibold text-green-400 mb-2">🔍 Locals:</h2>
             <pre className="text-green-300 text-sm">{JSON.stringify(current.locals, null, 2)}</pre>
+
+            {current.branch && (
+              <p className={`mt-2 font-bold ${
+                current.branch === 'if' ? 'text-blue-400' :
+                current.branch === 'else' ? 'text-yellow-400' :
+                'text-gray-400'
+              }`}>
+                🛤️ Branch: {current.branch.toUpperCase()}
+              </p>
+            )}
           </div>
+
 
           <ArrayVisualizer locals={current.locals} />
         </>
