@@ -5,11 +5,11 @@ import CodeMirror from '@uiw/react-codemirror';
 import { python } from '@codemirror/lang-python';
 import { EditorView } from '@codemirror/view';
 import ArrayVisualizer from '@/components/ArrayVisualizer';
-import { log } from 'console';
 
 export default function Home() {
   const [code, setCode] = useState(`arr = [1, 2, 3]\nsum = 0\nfor i in range(len(arr)):\n    sum += arr[i]\nprint(sum)`);
   const [trace, setTrace] = useState<any[]>([]);
+  const [timeline, setTimeline] = useState<Record<string, [number, any][]>>({});
   const [stepIndex, setStepIndex] = useState(0);
 
   const runCode = async () => {
@@ -20,9 +20,10 @@ export default function Home() {
         body: JSON.stringify({ code, language: 'python' }),
       });
       const data = await res.json();
-      console.log(data.trace);
+      console.log(data);
       
-      setTrace(data.trace || []);
+      setTrace(data.trace.trace || []);
+      setTimeline(data.trace.timeline || {});
       setStepIndex(0);
     } catch (err) {
       console.error(err);
@@ -33,6 +34,18 @@ export default function Home() {
   const prevStep = () => setStepIndex((i) => Math.max(i - 1, 0));
 
   const current = trace[stepIndex];
+
+  // Helper: Extract variable state at current step from timeline
+  const getTimelineAtStep = (step: number) => {
+    const currentTimeline: Record<string, any> = {};
+    for (const [variable, steps] of Object.entries(timeline)) {
+      const entry = (steps as [number, any][]).find(([s]) => s === step);
+      if (entry) currentTimeline[variable] = entry[1];
+    }
+    return currentTimeline;
+  };
+
+  const timelineAtStep = getTimelineAtStep(stepIndex);
 
   return (
     <div className="min-h-screen bg-[#0f0f0f] text-white p-6">
@@ -70,6 +83,29 @@ export default function Home() {
             )}
           </div>
 
+          <div className="mt-6 bg-white text-black p-4 rounded shadow">
+            <h2 className="text-xl font-semibold mb-2">📈 Variable Timeline at Step {stepIndex + 1}</h2>
+            {Object.keys(timelineAtStep).length === 0 ? (
+              <p>No changes at this step.</p>
+            ) : (
+              <table className="table-auto border-collapse w-full text-sm">
+                <thead>
+                  <tr>
+                    <th className="border px-4 py-2">Variable</th>
+                    <th className="border px-4 py-2">Value</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.entries(timelineAtStep).map(([variable, value], idx) => (
+                    <tr key={idx}>
+                      <td className="border px-4 py-2 font-medium">{variable}</td>
+                      <td className="border px-4 py-2">{JSON.stringify(value)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
 
           <ArrayVisualizer locals={current.locals} />
         </>
