@@ -4,6 +4,8 @@ import { useState } from 'react';
 import CodeMirror from '@uiw/react-codemirror';
 import { python } from '@codemirror/lang-python';
 import { EditorView } from '@codemirror/view';
+import VariableTimelineChart from '@/components/VariableTimelineChart';
+import TraceStepper from '@/components/TraceStepper';
 import ArrayVisualizer from '@/components/ArrayVisualizer';
 
 export default function Home() {
@@ -83,29 +85,16 @@ export default function Home() {
             )}
           </div>
 
-          <div className="mt-6 bg-white text-black p-4 rounded shadow">
-            <h2 className="text-xl font-semibold mb-2">📈 Variable Timeline at Step {stepIndex + 1}</h2>
-            {Object.keys(timelineAtStep).length === 0 ? (
-              <p>No changes at this step.</p>
-            ) : (
-              <table className="table-auto border-collapse w-full text-sm">
-                <thead>
-                  <tr>
-                    <th className="border px-4 py-2">Variable</th>
-                    <th className="border px-4 py-2">Value</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {Object.entries(timelineAtStep).map(([variable, value], idx) => (
-                    <tr key={idx}>
-                      <td className="border px-4 py-2 font-medium">{variable}</td>
-                      <td className="border px-4 py-2">{JSON.stringify(value)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
+
+          {trace.length > 0 && (
+            <>
+              {/* Existing Step Viewer */}
+              <TraceStepper trace={trace} stepIndex={stepIndex} setStepIndex={setStepIndex} />
+              
+              {/* New Timeline Chart Here */}
+              <VariableTimelineChart timeline={timeline} />
+            </>
+          )}
 
           <ArrayVisualizer locals={current.locals} />
         </>
